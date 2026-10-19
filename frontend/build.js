@@ -25,16 +25,19 @@ const excludedDirectories = new Set([".vercel", "dist", "node_modules"]);
 const excludedFiles = new Set(["build.js", "package.json", "package-lock.json"]);
 
 fs.rmSync(outputDir, { recursive: true, force: true });
-fs.cpSync(sourceDir, outputDir, {
-  recursive: true,
-  filter(source) {
-    const relative = path.relative(sourceDir, source);
-    if (!relative) return true;
-    if (relative.split(path.sep).some((part) => excludedDirectories.has(part))) return false;
-    const name = path.basename(source);
-    return !excludedFiles.has(name) && !name.startsWith(".env");
-  }
-});
+for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+  const name = entry.name;
+  if (excludedDirectories.has(name) || excludedFiles.has(name) || name.startsWith(".env")) continue;
+  fs.cpSync(path.join(sourceDir, name), path.join(outputDir, name), {
+    recursive: true,
+    filter(source) {
+      const relative = path.relative(sourceDir, source);
+      if (relative.split(path.sep).some((part) => excludedDirectories.has(part))) return false;
+      const sourceName = path.basename(source);
+      return !excludedFiles.has(sourceName) && !sourceName.startsWith(".env");
+    }
+  });
+}
 fs.writeFileSync(
   path.join(outputDir, "js", "config.js"),
   `window.APP_CONFIG = { API_URL: ${JSON.stringify(normalizedApiUrl)} };\n`
