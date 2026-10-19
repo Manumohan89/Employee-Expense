@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Exceptions</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<div class="head"><h2>Exception log</h2></div><div class="scroll"><table class="tbl"><thead><tr><th>Row</th><th>Employee</th><th>Issue</th><th>Detail</th><th>Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>(async()=>{if(!guard())return;try{const d=await api("/api/exceptions");rows.innerHTML=d.rows.map(x=>`<tr class="${x.type!=="Invalid data"?"red":""}"><td>${x.row}</td><td>${esc(x.employee_id)}</td><td>${esc(x.type)}</td><td>${esc(x.detail)}</td><td>${esc(x.amount)}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">No exceptions found.</td></tr>`}catch(x){msg(x.message,"err")}})();</script>
+</body></html>

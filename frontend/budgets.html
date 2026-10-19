@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Budgets</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<div class="head"><h2>Monthly budgets</h2></div><form class="up hide" id="bf"><select name="category" id="bc"></select><input name="limit" type="number" min="0" step="0.01" placeholder="Monthly limit (0 removes)" required><button class="btn">Save budget</button></form><div class="alerts" id="out"></div>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>async function load(){if(!guard())return;try{const d=await api("/api/budgets");if(role()==="admin"){bf.classList.remove("hide");if(!bc.options.length)d.categories.forEach(c=>bc.add(new Option(c,c)))}
+out.innerHTML=d.rows.map(b=>`<div class="al ${b.level}"><b>${esc(b.category)}${b.level==="over"?" - over budget":b.level==="warn"?" - nearing limit":""}</b><div class="bar2"><i style="width:${Math.min(b.pct,100)}%"></i></div>${money(b.spent)} of ${money(b.limit)} this month (${b.pct}%)</div>`).join("")||`<p class="empty">No budgets set yet.${role()==="admin"?"":" Ask an admin to add some."}</p>`}catch(x){msg(x.message,"err")}}
+bf.onsubmit=async e=>{e.preventDefault();try{const d=await api("/api/budgets",{method:"PUT",json:Object.fromEntries(new FormData(bf))});msg(d.message);bf.limit.value="";load()}catch(x){msg(x.message,"err")}};load();</script>
+</body></html>

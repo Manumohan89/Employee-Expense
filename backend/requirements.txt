@@ -1,0 +1,11 @@
+Flask>=3.0
+flask-cors>=4.0
+PyJWT>=2.8
+pandas>=2.0
+numpy>=1.26
+openpyxl>=3.1
+pymongo[srv]>=4.6
+reportlab>=4.0
+gunicorn>=21.2
+mongomock>=4.1
+pytest>=8.0

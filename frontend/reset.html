@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Set new password</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<form class="card" id="f"><h2>Choose a new password</h2><label>New password (6+ characters)<input type="password" name="password" minlength="6" required autofocus></label><button class="btn wide">Update password</button></form>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>f.onsubmit=async e=>{e.preventDefault();try{const token=new URLSearchParams(location.search).get("token")||"";const d=await api("/api/reset",{method:"POST",noRedirect:true,json:{token,password:f.password.value}});msg(d.message);setTimeout(()=>location.href="login.html",1500)}catch(x){msg(x.message,"err")}}</script>
+</body></html>

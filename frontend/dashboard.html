@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly - Dashboard</title>
+  <link rel="icon" href="img/logo.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1f6f54">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dashboard-page">
+  <div id="nav"></div>
+  <main>
+    <div id="msgs"></div>
+    <section class="dashboard-heading">
+      <div>
+        <p class="eyebrow" id="dash-kicker">Your workspace</p>
+        <div class="dashboard-title-row">
+          <h1 id="hi">Dashboard</h1>
+          <span id="role-badge" class="role-badge"></span>
+        </div>
+        <p class="dashboard-intro" id="dash-intro"></p>
+      </div>
+      <div class="dashboard-controls">
+        <label class="month-control">Reporting period<select id="mo" aria-label="Reporting period"></select></label>
+        <a class="btn" id="primary-action" href="form.html">Add expense</a>
+      </div>
+    </section>
+    <div class="quick-actions" id="quick-actions" aria-label="Workspace shortcuts"></div>
+    <section id="out" aria-live="polite"></section>
+  </main>
+  <footer>Ledgerly · Expense management for teams</footer>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script>
+    const heading = document.getElementById("hi");
+    const kicker = document.getElementById("dash-kicker");
+    const intro = document.getElementById("dash-intro");
+    const roleBadge = document.getElementById("role-badge");
+    const monthSelect = document.getElementById("mo");
+    const output = document.getElementById("out");
+    const shortcuts = document.getElementById("quick-actions");
+    const primaryAction = document.getElementById("primary-action");
+    let charts = [];
+
+    const roleDetails = {
+      employee: {
+        label: "Employee",
+        kicker: "Personal workspace",
+        title: "Your expenses, at a glance.",
+        intro: "Track your claims, check what is waiting for approval, and see your personal spending.",
+        action: ["form.html", "Add an expense"],
+        shortcuts: [["expenses.html", "View my expenses"], ["budgets.html", "Check budgets"]]
+      },
+      manager: {
+        label: "Manager",
+        kicker: "Team workspace",
+        title: "Your team's expenses, at a glance.",
+        intro: "Review claims, spot exceptions, and keep team spending moving.",
+        action: ["expenses.html?status=Pending", "Review pending"],
+        shortcuts: [["upload.html", "Import expenses"], ["exceptions.html", "Review exceptions"], ["budgets.html", "View budgets"]]
+      },
+      admin: {
+        label: "Admin",
+        kicker: "Admin workspace",
+        title: "Workspace spending, at a glance.",
+        intro: "Oversee claims across the workspace, manage access, and keep budgets on track.",
+        action: ["expenses.html?status=Pending", "Review pending"],
+        shortcuts: [["upload.html", "Import expenses"], ["users.html", "Manage users"], ["audit.html", "View audit log"]]
+      }
+    };
+
+    function table(rows, headings, renderRow) {
+      return `<div class="table-wrap"><table class="tbl"><thead><tr>${headings.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.length ? rows.map(renderRow).join("") : `<tr><td class="empty" colspan="${headings.length}">Nothing to show yet.</td></tr>`}</tbody></table></div>`;
+    }
+
+    async function load() {
+      if (!guard()) return;
+      try {
+        const month = localStorage.getItem("month") || "";
+        const d = await api("/api/dashboard" + (month ? "?month=" + encodeURIComponent(month) : ""));
+        const details = roleDetails[d.role] || roleDetails.employee;
+        const privileged = d.role === "manager" || d.role === "admin";
+
+        document.title = `Ledgerly - ${details.label} dashboard`;
+        heading.textContent = details.title;
+        kicker.textContent = details.kicker;
+        intro.textContent = `${d.name}, ${details.intro}`;
+        roleBadge.textContent = details.label;
+        roleBadge.className = `role-badge ${d.role}`;
+        primaryAction.href = details.action[0];
+        primaryAction.textContent = details.action[1];
+        shortcuts.innerHTML = details.shortcuts.map(([href, label]) => `<a class="shortcut" href="${href}">${esc(label)}<span aria-hidden="true">→</span></a>`).join("");
+
+        monthSelect.innerHTML = `<option value="">All time</option>` + d.months.map((x) => `<option value="${esc(x)}" ${x === month ? "selected" : ""}>${esc(x)}</option>`).join("");
+        if (!d.n && !d.budgets.length) {
+          output.innerHTML = `
+            <div class="empty-panel"><span class="empty-mark" aria-hidden="true">＋</span><p class="eyebrow">Your workspace is ready</p><h2>Start with your first expense</h2><p>${d.role === "employee" ? "Add a claim to see your spending, receipt, and approval status all in one place." : "Import a spreadsheet or add a claim to bring your team's activity into one place."}</p><a class="btn" href="${d.role === "employee" ? "form.html" : "upload.html"}">${d.role === "employee" ? "Add an expense" : "Import expenses"}</a></div>
+            <section class="getting-started"><div class="section-title"><div><p class="eyebrow">Getting started</p><h2>Everything in its right place.</h2></div></div><div class="getting-started-grid">
+              <article><span>01</span><div><h3>${d.role === "employee" ? "Submit a claim" : "Bring in your claims"}</h3><p>${d.role === "employee" ? "Add the date, category, amount, and receipt for your expense." : "Import a CSV or spreadsheet, or add a claim directly."}</p></div></article>
+              <article><span>02</span><div><h3>Follow approvals</h3><p>${d.role === "employee" ? "See when your manager reviews and updates your claim." : "Review pending claims and keep decisions moving."}</p></div></article>
+              <article><span>03</span><div><h3>Keep spending visible</h3><p>Use budgets, trends, and exports to understand where money goes.</p></div></article>
+            </div></section>`;
+          return;
+        }
+
+        const trend = d.trend;
+        const statuses = d.status_counts;
+        const insights = [];
+        if (trend.mom_pct !== null) insights.push(`Spending changed <b>${trend.mom_pct > 0 ? "+" : ""}${esc(trend.mom_pct)}%</b> from the previous month.`);
+        if (trend.forecast !== null) insights.push(`Forecast for ${esc(trend.forecast_month)}: <b>${money(trend.forecast)}</b>.`);
+        const totalsLabel = privileged ? (d.role === "admin" ? "Workspace spend" : "Team spend") : "My spend";
+        const rejectedNote = d.n_exc ? `<span class="kpi-note">${d.n_exc} flagged for review</span>` : "";
+
+        output.innerHTML = `
+          <div class="kpis">
+            <article class="kpi-card primary-kpi"><small>${totalsLabel}</small><b>${money(d.total)}</b><span class="kpi-note">Excluding rejected claims</span></article>
+            <article class="kpi-card"><small>${privileged ? "Claims in view" : "My claims"}</small><b>${d.n}</b><span class="kpi-note">${privileged ? "Across your team" : "In this reporting period"}</span></article>
+            <article class="kpi-card ${d.n_exc ? "warn" : ""}"><small>Exceptions</small><b>${d.n_exc}</b>${rejectedNote}</article>
+            <article class="kpi-card"><small>Pending approval</small><b><a href="expenses.html?status=Pending">${d.pending}</a></b><span class="kpi-note">Waiting for a decision</span></article>
+          </div>
+          <section class="status-overview" aria-label="Claim status overview">
+            <div class="status-overview-heading"><div><p class="eyebrow">Approval workflow</p><h2>Claims at every stage</h2></div><a href="expenses.html">Open expense list →</a></div>
+            <div class="status-track" aria-hidden="true"><span class="pending-track" style="width:${d.n ? statuses.Pending / d.n * 100 : 0}%"></span><span class="approved-track" style="width:${d.n ? statuses.Approved / d.n * 100 : 0}%"></span><span class="rejected-track" style="width:${d.n ? statuses.Rejected / d.n * 100 : 0}%"></span></div>
+            <div class="status-counts">
+              <a href="expenses.html?status=Pending"><span class="status-dot pending-dot"></span><span>Pending</span><b>${statuses.Pending}</b></a>
+              <a href="expenses.html?status=Approved"><span class="status-dot approved-dot"></span><span>Approved</span><b>${statuses.Approved}</b></a>
+              <a href="expenses.html?status=Rejected"><span class="status-dot rejected-dot"></span><span>Rejected</span><b>${statuses.Rejected}</b></a>
+            </div>
+          </section>
+          ${insights.length ? `<div class="insight"><span class="insight-label">Spending insight</span><p>${insights.join(" ")}</p></div>` : ""}
+          ${d.budgets.length ? `<section class="dashboard-section"><div class="section-title"><div><p class="eyebrow">Monthly limits</p><h2>Budget check</h2></div><a href="budgets.html">Manage budgets →</a></div><div class="alerts">${d.budgets.map((b) => `<article class="al ${esc(b.level)}"><div class="budget-heading"><b>${esc(b.category)}</b><span>${b.pct}%</span></div><div class="bar2" role="progressbar" aria-label="${esc(b.category)} budget" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(b.pct, 100)}"><i style="width:${Math.min(b.pct, 100)}%"></i></div><span>${money(b.spent)} of ${money(b.limit)}</span>${b.level === "over" ? `<small>Over budget</small>` : b.level === "warn" ? `<small>Nearing limit</small>` : ""}</article>`).join("")}</div></section>` : ""}
+          <section class="dashboard-section">
+            <div class="section-title"><div><p class="eyebrow">Spending overview</p><h2>See where it goes.</h2></div></div>
+            <div class="charts"><article class="chart-card"><h3>Spend by category</h3><div class="chart-canvas"><canvas id="c1" aria-label="Doughnut chart of spend by category"></canvas></div></article><article class="chart-card"><h3>Spend by month</h3><div class="chart-canvas"><canvas id="c2" aria-label="Bar chart of spend by month"></canvas></div></article></div>
+          </section>
+          <section class="dashboard-section">
+            <div class="section-title"><div><p class="eyebrow">${privileged ? "Latest activity" : "Your activity"}</p><h2>Recent expenses</h2></div><a href="expenses.html">View all →</a></div>
+            <div class="recent-card">${table(d.recent, ["Date", ...(privileged ? ["Employee"] : []), "Expense", "Amount", "Status"], (e) => `<tr><td>${esc(e.date)}</td>${privileged ? `<td>${esc(e.employee_id)}</td>` : ""}<td><b>${esc(e.category)}</b><small class="expense-description">${esc(e.description || "No description")}</small></td><td>${money(e.amount)}</td><td><span class="badge ${esc(e.approval_status.toLowerCase())}">${esc(e.approval_status)}</span></td></tr>`)}</div>
+          </section>
+          ${privileged ? `<section class="dashboard-section"><div class="section-title"><div><p class="eyebrow">Team snapshot</p><h2>Spend by employee</h2></div></div><div class="recent-card">${table(d.emp, ["Employee", "Claims", "Total"], (e) => `<tr><td>${esc(e.employee_id)}</td><td>${e.claims}</td><td>${money(e.total)}</td></tr>`)}</div></section>` : ""}`;
+
+        charts.forEach((chart) => chart.destroy());
+        const labels = d.mon.map((x) => x.month);
+        const totals = d.mon.map((x) => x.total);
+        if (trend.forecast !== null) labels.push(trend.forecast_month + " forecast");
+        charts = [
+          new Chart(document.getElementById("c1"), {
+            type: "doughnut",
+            data: { labels: d.cat.map((x) => x.category), datasets: [{ data: d.cat.map((x) => x.total), backgroundColor: ["#1f6f54", "#e8b44b", "#12261f", "#6aa58f", "#c9871a", "#9fb2a8"] }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+          }),
+          new Chart(document.getElementById("c2"), {
+            type: "bar",
+            data: { labels, datasets: [{ data: totals.concat(trend.forecast !== null ? [trend.forecast] : []), backgroundColor: totals.map(() => "#1f6f54").concat(trend.forecast !== null ? ["#e8b44b"] : []) }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+          })
+        ];
+      } catch (error) {
+        msg(error.message, "err");
+      }
+    }
+
+    monthSelect.onchange = () => {
+      localStorage.setItem("month", monthSelect.value);
+      load();
+    };
+    load();
+  </script>
+</body>
+</html>

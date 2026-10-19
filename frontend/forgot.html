@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Forgot password</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<form class="card" id="f"><h2>Reset your password</h2><p class="sub">Enter your email and we will send a reset link.</p><label>Email<input type="email" name="email" required autofocus></label><button class="btn wide">Send reset link</button><p class="sub"><a href="login.html">Back to sign in</a></p></form>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>f.onsubmit=async e=>{e.preventDefault();try{const d=await api("/api/forgot",{method:"POST",noRedirect:true,json:Object.fromEntries(new FormData(f))});msg(d.message)}catch(x){msg(x.message,"err")}}</script>
+</body></html>

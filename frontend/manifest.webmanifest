@@ -1,0 +1,2 @@
+{ "name": "Ledgerly", "short_name": "Ledgerly", "start_url": "dashboard.html", "display": "standalone", "background_color": "#eef2ee", "theme_color": "#1f6f54",
+  "icons": [{ "src": "img/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }] }

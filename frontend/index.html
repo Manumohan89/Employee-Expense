@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly - Expense management, made clearer</title>
+  <meta name="description" content="Submit, review, and track expense claims with clear approvals, budgets, and reports.">
+  <link rel="icon" href="img/logo.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1f6f54">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="home-page">
+  <div id="nav"></div>
+  <main>
+    <div id="msgs"></div>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Expense management without the busywork</p>
+        <h1>Close the month with confidence.</h1>
+        <p class="hero-lede">One clear place to submit expenses, review claims, keep budgets on track, and get reports ready.</p>
+        <div class="hero-actions">
+          <a class="btn" href="register.html">Get started</a>
+          <a class="btn ghost" href="login.html">Sign in</a>
+        </div>
+        <p class="hero-note">A straightforward workflow for employees, managers, and admins.</p>
+      </div>
+      <div class="hero-visual">
+        <div class="visual-caption"><span class="status-dot"></span> Your month, in view</div>
+        <svg class="art" viewBox="0 0 480 340" role="img" aria-label="Expense summary with a spending chart and approved claims">
+          <rect x="22" y="46" width="270" height="256" rx="18" fill="#fbfdfb"/>
+          <text x="48" y="82" font-size="14" font-weight="600" fill="#587068">MONTHLY SPEND</text>
+          <text x="48" y="126" font-size="34" font-weight="800" fill="#12261f">$8,420</text>
+          <rect x="48" y="150" width="214" height="1" fill="#dce5df"/>
+          <text x="48" y="181" font-size="13" fill="#587068">Travel</text>
+          <rect x="108" y="168" width="135" height="16" rx="8" fill="#1f6f54"/>
+          <text x="48" y="215" font-size="13" fill="#587068">Meals</text>
+          <rect x="108" y="202" width="94" height="16" rx="8" fill="#e8b44b"/>
+          <text x="48" y="249" font-size="13" fill="#587068">Supplies</text>
+          <rect x="108" y="236" width="63" height="16" rx="8" fill="#9ab9a8"/>
+          <rect x="318" y="112" width="138" height="190" rx="18" fill="#12261f"/>
+          <circle cx="387" cy="156" r="24" fill="#d9efe3"/>
+          <path d="M376 156l8 8 15-17" fill="none" stroke="#1f6f54" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="342" y="207" font-size="14" font-weight="600" fill="#c6d8cf">CLAIM STATUS</text>
+          <text x="342" y="235" font-size="20" font-weight="800" fill="#fff">Approved</text>
+          <text x="342" y="260" font-size="12" fill="#c6d8cf">Receipt attached</text>
+          <circle cx="430" cy="76" r="26" fill="#f2b441"/>
+          <path d="M420 76h20M430 66v20" stroke="#12261f" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div class="visual-footnote"><span>✓</span> Receipts, approvals, and budgets together</div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="At a glance">
+      <div><b>3</b><span>clear access roles</span></div>
+      <div><b>2</b><span>report formats</span></div>
+      <div><b>80%</b><span>budget warning point</span></div>
+      <div><b>1</b><span>place for every claim</span></div>
+    </section>
+
+    <section class="role-section" id="role-access">
+      <div class="section-heading">
+        <p class="eyebrow">A workspace for everyone</p>
+        <h2>Know what your role can do.</h2>
+        <p>Each person gets the tools they need, with the right access built in.</p>
+      </div>
+      <div class="role-cards">
+        <article class="role-card employee-card">
+          <span class="role-number">01</span>
+          <h3>Employee</h3>
+          <p>Submit claims, attach receipts, and follow the status of your own expenses.</p>
+          <span class="role-tag">Your expenses · Your status</span>
+        </article>
+        <article class="role-card manager-card">
+          <span class="role-number">02</span>
+          <h3>Manager</h3>
+          <p>Review team claims, resolve exceptions, and keep an eye on spending trends.</p>
+          <span class="role-tag">Team review · Import · Reports</span>
+        </article>
+        <article class="role-card admin-card">
+          <span class="role-number">03</span>
+          <h3>Admin</h3>
+          <p>Manage access and budgets, review the audit log, and oversee the workspace.</p>
+          <span class="role-tag">Users · Budgets · Audit</span>
+        </article>
+      </div>
+      <p class="role-note">The first account becomes the admin. Admins can assign manager access.</p>
+    </section>
+
+    <section class="feature-section" id="features">
+      <div class="section-heading">
+        <p class="eyebrow">Less chasing, more clarity</p>
+        <h2>From receipt to report.</h2>
+      </div>
+      <div class="feat">
+        <article><span class="feature-icon">01</span><h3>Approvals that make sense</h3><p>Managers approve or reject claims with a note. Employees can see what needs attention.</p></article>
+        <article><span class="feature-icon">02</span><h3>Receipts where you need them</h3><p>Attach an image or PDF to a claim and open it directly from the expense list.</p></article>
+        <article><span class="feature-icon">03</span><h3>Budgets before surprises</h3><p>Set category limits and get a clear warning as spending approaches the cap.</p></article>
+        <article><span class="feature-icon">04</span><h3>Useful spending trends</h3><p>See month-to-month changes and a simple forecast alongside category totals.</p></article>
+        <article><span class="feature-icon">05</span><h3>Cleaner data, less rework</h3><p>Flag invalid dates, amounts, categories, and duplicate claims before they get buried.</p></article>
+        <article><span class="feature-icon">06</span><h3>Reports ready to share</h3><p>Export expense data to Excel or download a formatted PDF report.</p></article>
+      </div>
+    </section>
+
+    <section class="steps">
+      <div class="section-heading">
+        <p class="eyebrow">A simple routine</p>
+        <h2>Three steps to a clearer close.</h2>
+      </div>
+      <ol>
+        <li><b>Submit</b><span>Add an expense and attach its receipt.</span></li>
+        <li><b>Review</b><span>Managers approve claims and leave a note when needed.</span></li>
+        <li><b>Understand</b><span>Track budgets and export the report for the month.</span></li>
+      </ol>
+    </section>
+    <section class="closing-cta">
+      <div><p class="eyebrow">Ready when you are</p><h2>Bring your expense workflow together.</h2></div>
+      <a class="btn" href="register.html">Create your account</a>
+    </section>
+  </main>
+  <footer>Ledgerly · Expense management for teams</footer>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

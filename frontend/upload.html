@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Import</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<form class="card wide-card" id="f"><h2>Import a spreadsheet</h2><p class="sub">CSV or XLSX with columns: employee_id, date, category, amount, description, approval_status. <a href="#" id="smp">Download a sample file</a>.</p><div class="drop" id="dz" role="button" tabindex="0" aria-label="Choose or drop a CSV or XLSX file">Drag a file here or click to choose<br><small id="fn"></small></div><input type="file" name="file" id="fi" accept=".csv,.xlsx" class="hide"><label class="chk hide" id="rp"><input type="checkbox" name="replace" value="1"> Replace all existing expenses (admin only)</label><button class="btn wide" type="submit">Validate and import</button></form>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>guard(["manager","admin"]);if(role()==="admin")rp.classList.remove("hide");
+smp.onclick=async e=>{e.preventDefault();try{await saveBlob("/api/sample","sample_expenses.csv")}catch(x){msg(x.message,"err")}};
+dz.onclick=()=>fi.click();dz.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fi.click()}};fi.onchange=()=>fn.textContent=fi.files[0]?.name||"";
+["dragover","dragenter"].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.add("over")}));["dragleave","drop"].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove("over")}));
+dz.addEventListener("drop",e=>{fi.files=e.dataTransfer.files;fn.textContent=fi.files[0]?.name||""});
+f.onsubmit=async e=>{e.preventDefault();if(!fi.files[0]){msg("Choose a .csv or .xlsx file.","err");return}if(f.elements.namedItem("replace").checked&&!confirm("This will permanently replace all existing expenses and receipts. Continue?"))return;const submit=f.querySelector('button[type="submit"]'),label=submit.textContent;submit.disabled=true;submit.textContent="Validating and importing...";try{const d=await api("/api/upload",{method:"POST",body:new FormData(f)});msg(d.message);setTimeout(()=>location.href="dashboard.html",1500)}catch(x){msg(x.message,"err");submit.disabled=false;submit.textContent=label}}</script>
+</body></html>

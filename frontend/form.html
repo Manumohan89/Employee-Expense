@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Expense</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<form class="card wide-card" id="f"><h2 id="t">Add expense</h2><label id="l1">Employee ID<input name="employee_id" required></label><label>Date<input type="date" name="date" required></label><label>Category<select name="category"></select></label><label>Amount<input name="amount" type="number" step="0.01" min="0.01" required></label><label>Description<input name="description"></label><label id="l2">Status<select name="approval_status"><option>Pending</option><option>Approved</option><option>Rejected</option></select></label><label>Receipt (PNG, JPG, WEBP or PDF, max 1.5 MB)<input type="file" name="receipt" accept=".png,.jpg,.jpeg,.webp,.pdf"></label><p class="sub hide" id="note">Your employee ID is filled in automatically and new expenses start as Pending until a manager reviews them.</p><button class="btn wide" type="submit">Save expense</button><p class="sub"><a href="expenses.html">Cancel</a></p></form>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>const id=new URLSearchParams(location.search).get("id");
+(async()=>{if(!guard())return;try{const c=await api("/api/expenses?per_page=1");c.categories.forEach(x=>f.category.add(new Option(x,x)));f.date.value=new Date().toISOString().slice(0,10);
+if(!isPriv()){f.employee_id.value=localStorage.getItem("emp_id");l1.classList.add("hide");l2.classList.add("hide");note.classList.remove("hide")}
+if(id){t.textContent="Edit expense";const e=await api("/api/expenses/"+id);for(const k in e)if(f[k]&&k!=="receipt")f[k].value=e[k]}}catch(x){msg(x.message,"err")}})();
+f.onsubmit=async e=>{e.preventDefault();const file=f.receipt.files[0];if(file){const ext=file.name.split(".").pop().toLowerCase();if(!["png","jpg","jpeg","webp","pdf"].includes(ext)||!file.size){msg("Choose a non-empty PNG, JPG, WEBP or PDF receipt.","err");return}if(file.size>1500000){msg("Receipt is larger than 1.5 MB.","err");return}}
+const submit=f.querySelector('button[type="submit"]'),label=submit.textContent;submit.disabled=true;submit.textContent="Saving expense...";
+try{const j=Object.fromEntries(new FormData(f));delete j.receipt;const d=await api("/api/expenses"+(id?"/"+id:""),{method:id?"PUT":"POST",json:j});
+if(file){const fd=new FormData();fd.append("file",file);try{await api("/api/expenses/"+(id||d.id)+"/receipt",{method:"POST",body:fd})}catch(x){msg("Expense saved, but the receipt could not be attached. "+x.message+" Use Expenses to open the claim and retry.","err");submit.textContent="Expense saved";return}}
+location.href="expenses.html"}catch(x){msg(x.message,"err");submit.disabled=false;submit.textContent=label}}</script>
+</body></html>

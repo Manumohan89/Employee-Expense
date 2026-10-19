@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledgerly - Users</title>
+<link rel="icon" href="img/logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1f6f54">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main><div id="msgs"></div>
+<div class="head"><h2>Users and roles</h2></div><div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Employee ID</th><th>Role</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+</main><footer>Ledgerly &middot; Static frontend &middot; Flask + MongoDB API</footer><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>async function load(){if(!guard(["admin"]))return;try{const d=await api("/api/users");rows.innerHTML=d.rows.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.emp_id)}</td><td><select data-s="${u.id}">${["employee","manager","admin"].map(r=>`<option ${r===u.role?"selected":""}>${r}</option>`).join("")}</select></td><td><button class="btn sm" data-id="${u.id}">Save</button></td></tr>`).join("")}catch(x){msg(x.message,"err")}}
+rows.onclick=async e=>{const id=e.target.dataset.id;if(!id)return;try{const d=await api("/api/users/"+id,{method:"PUT",json:{role:rows.querySelector(`[data-s="${id}"]`).value}});msg(d.message)}catch(x){msg(x.message,"err")}};load();</script>
+</body></html>
